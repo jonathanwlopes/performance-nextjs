@@ -73,3 +73,72 @@ export const ProductItem = memo(ProductItemComponent, (prevProps, nextProps) => 
 
 ### useMemo
 
+- Evitar re-renderização de componentes que realizam cálculos.
+- Podemos utilizar o useMemo, para memorizar o calculo.
+
+```tsx
+const totalPrice = useMemo(() => {
+  return results.reduce((acc, product) => {
+    return acc + product.price;
+  }, 0);
+}, [results]);
+```
+
+- Podemos utilizar também o useMemo nos casos de igualdade referencial, para evitar que uma variável ocupe um novo local na memoria.
+  -- Quando repassamos a informação para um componente filho.
+
+### useCallback
+
+- Utilizado apenas em uma situação, quando queremos memorizar uma função.
+  -- Quando componente é re-renderizado todas as funções irão executar novamente.
+  -- Vale lembrar que não utilizamos o useCallback pela quantidade de código da função, mas sim pela igualdade referencial.
+
+- Quando criamos uma função e ela será repassada para elementos filhos da nossa aplicação, é importante que ela utilize o useCallback
+
+### Importante!
+
+- Realizar as formatações dos dados sempre no momento que se busca os dados e não no momento da renderização do componente.
+
+### Lazyload components
+
+- Conhecido como Code Splitting utilizamos o dynamic do next para realizar as importações, desta forma o componente será carregando apenas
+  quando solicitado.
+
+```tsx
+import dynamic from 'next/dynamic';
+
+const AddProductWishlist = dynamic<AddProductToWishlistProps>(
+  () => {
+    return import('./AddProductToWishlist').then((mod) => mod.AddProductToWishlist);
+  },
+  {
+    loading: () => <span>Carregando...</span>,
+  },
+);
+
+const ProductItemComponent = ({ product, onAddToWishList }: ProductItemProps) => {
+  const [isAddingToWishList, setIsAddingToWishList] = useState(false);
+
+  return (
+    <div>
+      {product.title} - <strong>R$ {product.price}</strong>
+      <button onClick={() => setIsAddingToWishList(true)}>Adicionar aos favoritos</button>
+      {isAddingToWishList && (
+        <AddProductWishlist
+          onAddToWishList={() => onAddToWishList(product.id)}
+          onRequestClose={() => setIsAddingToWishList(false)}
+        />
+      )}
+    </div>
+  );
+};
+```
+
+### Virtualização
+
+- Mostrar em tela somente os itens visíveis no navegador do usuário
+- Utilizamos para essa funcionalidade o react-virtualized
+
+### Analisar performance
+
+- Bundle analyzer
